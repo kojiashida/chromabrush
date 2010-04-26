@@ -36,7 +36,7 @@ cb.PencilBrush = cb.Brush.extend({
   onMouseDown: function(x, y, evt) {
     this.drawing = true;
     var layer = this.presenter.getCurrentLayer();
-    layer.paintPixel(x, y, cb.PixelSize, '#36b');
+    layer.paintPixel(x, y, cb.PixelSize, this.presenter.currentColor());
   },
   onMouseUp: function(x, y, evt) {
     this.drawing = false;
@@ -44,7 +44,7 @@ cb.PencilBrush = cb.Brush.extend({
   onMouseMove: function(x, y, evt) {
     if (this.drawing) {
       var layer = this.presenter.getCurrentLayer();
-      layer.paintPixel(x, y, cb.PixelSize, '#36b');
+      layer.paintPixel(x, y, cb.PixelSize, this.presenter.currentColor());
     }
   }
 });
@@ -55,7 +55,7 @@ cb.PenBrush = cb.Brush.extend({
   },
   onMouseDown: function(x, y, evt) {
     var layer = this.presenter.getCurrentLayer();
-    layer.paintPixel(x, y, cb.PixelSize, '#36b');
+    layer.paintPixel(x, y, cb.PixelSize, this.presenter.currentColor());
     this.previousX = x;
     this.previousY = y;
   },
@@ -65,7 +65,8 @@ cb.PenBrush = cb.Brush.extend({
   onMouseMove: function(x, y, evt) {
     if (!this.previousX) { return; }
     var layer = this.presenter.getCurrentLayer();
-    layer.paintLine(this.previousX, this.previousY, x, y, cb.PixelSize, '#36b');
+    layer.paintLine(this.previousX, this.previousY,
+        x, y, cb.PixelSize, this.presenter.currentColor());
     this.previousX = x;
     this.previousY = y;
   }
@@ -109,7 +110,7 @@ cb.LineBrush = cb.Brush.extend({
           x, 
           y, 
           cb.PixelSize, 
-          '#36b');
+          this.presenter.currentColor());
       console.log(evt, evt.shiftKey);
       if (!evt.shiftKey) {
         // End of line.
@@ -139,7 +140,7 @@ cb.FillBrush = cb.Brush.extend({
     if (x < 0 || x >= layer.width || y < 0 || y >= layer.height) {
       return;
     }
-    layer.paintFill(x, y, cb.PixelSize, '#4c8');
+    layer.paintFill(x, y, cb.PixelSize, this.presenter.currentColor());
   }
 });
 

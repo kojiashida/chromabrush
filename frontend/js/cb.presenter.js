@@ -45,8 +45,8 @@ cb.Presenter = Class.extend({
     vbox1.append(hbox1);
   
     this.control_box = $('<div class="box boxFlex0" id="control_box"></div>');
-    this.control_box.text('Control box');
     hbox1.append(this.control_box);
+    this.color_selector = new cb.ColorSelector(this.control_box);
 
     var vbox2 = $('<div class="vbox boxFlex"></div>');
     hbox1.append(vbox2);
@@ -231,6 +231,7 @@ cb.Presenter = Class.extend({
     var brush_selection = $('<div class="box" />');
     brush_selection.attr('id', 'brush_select_' + name)
                    .text(name)
+                   .css('cursor', 'pointer')
                    .css('color', 'gray');
     var myself = this;
     brush_selection.bind('click', function(evt) {
@@ -270,5 +271,8 @@ cb.Presenter = Class.extend({
     $('.layer.selected').removeClass('selected');
     this.currentlayer = index;
     $('.layer[layer=' + index + ']').addClass('selected');
+  },
+  currentColor: function() {
+    return this.color_selector.currentColor();
   }
 });

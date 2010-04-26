@@ -148,3 +148,30 @@ cb.util.canvas.paintPixel = function(canvas, x, y, pixel_size, color) {
       pixel_size, 
       pixel_size);  
 };
+
+cb.util.normalizedColor = function(r, g, b) {
+  // Convert RGB in [0, 1] range to a color string we can use with canvas.
+  var r_value = Math.floor(r * 256);
+  var g_value = Math.floor(g * 256);
+  var b_value = Math.floor(b * 256);
+  return 'rgba(' + r_value + ', ' + g_value + ', ' + b_value + ', 255)';
+};
+
+cb.util.hueToRGB = function(hue) {
+  // Takes hue in degrees and produces RGB.
+  hue = hue % 360;
+  var h = (Math.floor(hue) % 60) / 60.0;
+  if (hue < 60) {
+    return [1.0, h, 0.0];
+  } else if (hue < 120) {
+    return [1.0 - h, 1.0, 0.0];
+  } else if (hue < 180) {
+    return [0.0, 1.0, h];
+  } else if (hue < 240) {
+    return [0.0, 1.0 - h, 1.0];
+  } else if (hue < 300) {
+    return [h, 0.0, 1.0];
+  } else {
+    return [1.0, 0.0, 1.0 - h];
+  }
+};
