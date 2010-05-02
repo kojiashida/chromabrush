@@ -128,5 +128,17 @@ cb.Layer = Class.extend({
   },
   setZIndex: function(zindex) {
     this.canvas.css('z-index', zindex);
+  },
+  getPosition: function() {
+    var x = this.canvas.css('left');
+    var y = this.canvas.css('top');
+    return {
+      x: x.substring(0, x.length - 2),
+      y: y.substring(0, y.length - 2)
+    };
+  },
+  setPosition: function(x, y) {
+    this.canvas.css('left', x + 'px');
+    this.canvas.css('top', y + 'px');
   }
 });

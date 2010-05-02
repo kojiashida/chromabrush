@@ -24,9 +24,9 @@ cb.Brush = Class.extend({
   setPresenter: function(presenter) {
     this.presenter = presenter;
   },
-  onMouseDown: function(x, y, layer, evt) {},
-  onMouseUp: function(x, y, layer, evt) {},
-  onMouseMove: function(x, y, layer, evt) {}
+  onMouseDown: function(x, y, evt) {},
+  onMouseUp: function(x, y, evt) {},
+  onMouseMove: function(x, y, evt) {}
 });
 
 cb.PencilBrush = cb.Brush.extend({
@@ -55,7 +55,7 @@ cb.PencilBrush = cb.Brush.extend({
 
 cb.PenBrush = cb.Brush.extend({
   init: function() {
-    this.startX = this.startY = null;
+    this.previousX = this.previousY = null;
   },
   onMouseDown: function(x, y, evt) {
     var layer = this.presenter.getCurrentLayer();
@@ -65,7 +65,7 @@ cb.PenBrush = cb.Brush.extend({
     this.previousX = x;
     this.previousY = y;
   },
-  onMouseUp: function(x, y, layer, evt) {
+  onMouseUp: function(x, y, evt) {
     this.previousX = this.previousY = null;
   },
   onMouseMove: function(x, y, evt) {
@@ -142,7 +142,7 @@ cb.LineBrush = cb.Brush.extend({
         x, 
         y, 
         0.3, 
-        '#c48');
+        this.presenter.currentColor());
   }
 });
 
@@ -156,3 +156,27 @@ cb.FillBrush = cb.Brush.extend({
   }
 });
 
+cb.MoveTool = cb.Brush.extend({
+  init: function() {
+    this.startX = this.startY = this.startLX = this.startLY = null;
+  },
+  onMouseDown: function(x, y, evt) {
+    var canvas_position = this.presenter.getCanvasMousePos(evt);
+    this.startX = canvas_position.x;
+    this.startY = canvas_position.y;
+    var layer_position = this.presenter.getCurrentLayer().getPosition();
+    this.startLX = layer_position.x - 0;
+    this.startLY = layer_position.y - 0;
+  },
+  onMouseUp: function(x, y, evt) {
+    this.startX = this.startY = this.startLX = this.startLY = null;
+  },
+  onMouseMove: function(x, y, evt) {
+    if (!this.startX) { return; }
+    var canvas_position = this.presenter.getCanvasMousePos(evt);
+    var layer = this.presenter.getCurrentLayer();
+    layer.setPosition(
+      this.startLX + canvas_position.x - this.startX,
+      this.startLY + canvas_position.y - this.startY);
+  }
+});

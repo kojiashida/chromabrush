@@ -163,19 +163,22 @@ cb.Presenter = Class.extend({
   },
   _onToolMouseDown: function(evt) {
     if (this.currentbrush) {
-      var pos = this._getRelativeMousePos(evt, this.tool_layer.getCanvas());
+      var pos = this._getRelativeMousePos(evt,
+          this.getCurrentLayer().getCanvas());
       this.currentbrush.onMouseDown(pos.x, pos.y, evt);
     }
   },
   _onToolMouseUp: function(evt) {
     if (this.currentbrush) {
-      var pos = this._getRelativeMousePos(evt, this.tool_layer.getCanvas());
+      var pos = this._getRelativeMousePos(evt,
+          this.getCurrentLayer().getCanvas());
       this.currentbrush.onMouseUp(pos.x, pos.y, evt);
     }
   },
   _onToolMouseMove: function(evt) {
     if (this.currentbrush) {
-      var pos = this._getRelativeMousePos(evt, this.tool_layer.getCanvas());
+      var pos = this._getRelativeMousePos(evt,
+          this.getCurrentLayer().getCanvas());
       this.currentbrush.onMouseMove(pos.x, pos.y, evt);
     }
   },
@@ -278,5 +281,12 @@ cb.Presenter = Class.extend({
   },
   currentBrushSize: function() {
     return this.brush_size_selector.currentBrushSize();
+  },
+  getCanvasMousePos: function(evt) {
+    var offset = $(this.tool_layer.getCanvas()).offset();
+    return {
+      'x' : evt.pageX - offset.left,
+      'y' : evt.pageY - offset.top
+    };
   }
 });
