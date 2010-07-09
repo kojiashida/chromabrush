@@ -29,6 +29,7 @@ cb.Presenter = Class.extend({
     this.currentlayer = -1;
     this.history_last_update = null;
     this.history_timeout = null;
+    this.transform = { x: 0.0, y: 0.0, r: 0.0, s: 1.0 };
     var myself = this;
     
     $(window).bind('unload', $.proxy(this, '_cleanup'));
@@ -71,6 +72,7 @@ cb.Presenter = Class.extend({
                    .css('margin', '0 auto')
                    .css('overflow', 'hidden');
     canvas_wrap.append(this.canvas_box);
+    this.setCanvasTransform();
   
     this.brush_box = $('<div class="hbox boxFlex0" id="brush_box"></div>');
     vbox2.append(this.brush_box);
@@ -188,11 +190,19 @@ cb.Presenter = Class.extend({
     }
   },
   _getRelativeMousePos: function(evt, elem) {
+    // TODO: This doesn't work when the canvas view is rotated because
+    // offset is the position of top-most and left-most pixel of
+    // the canvas, and not of any particular point.
     var offset = $(elem).offset();
-    
+    var xfm = this.transform;
+    var s = Math.sin(xfm.r * Math.PI / 180.0);
+    var c = Math.cos(xfm.r * Math.PI / 180.0);
+    var x = (evt.pageX - offset.left) / xfm.s - this.canvas_width / 2.0;
+    var y = (evt.pageY - offset.top) / xfm.s - this.canvas_height / 2.0;
+
     return {
-      'x' : evt.pageX - offset.left,
-      'y' : evt.pageY - offset.top
+      'x' : (c * x + s * y) + this.canvas_width / 2.0,
+      'y' : (-s * x + c * y) + this.canvas_height / 2.0
     };
   },
   _onDragOver: function(evt) {
@@ -395,11 +405,20 @@ cb.Presenter = Class.extend({
   currentBrushSize: function() {
     return this.brush_size_selector.currentBrushSize();
   },
+  // Event position in canvas coordinate system.
   getCanvasMousePos: function(evt) {
     var offset = $(this.tool_layer.getCanvas()).offset();
     return {
       'x' : evt.pageX - offset.left,
       'y' : evt.pageY - offset.top
+    };
+  },
+  // Canvas center position in page coordinate system.
+  getCanvasCenterPos: function() {
+    var offset = $(this.tool_layer.getCanvas()).offset();
+    return {
+      'x' : offset.left + this.canvas_width / 2.0,
+      'y' : offset.top + this.canvas_height / 2.0
     };
   },
   addToolbar: function(toolbar) {
@@ -410,5 +429,18 @@ cb.Presenter = Class.extend({
       'w' : this.canvas_width,
       'h' : this.canvas_height
     };
+  },
+  getCanvasTransform: function() {
+    var xfm = this.transform;
+    return { x: xfm.x, y: xfm.y, r: xfm.r, s: xfm.s };
+  },
+  setCanvasTransform: function(xfm) {
+    if (arguments.length > 0) {
+      this.transform = { x: xfm.x, y: xfm.y, r: xfm.r, s: xfm.s };
+    }
+    this.canvas_box.css('-webkit-transform',
+        'translate(' + this.transform.x + 'px,' + this.transform.y + 'px) ' +
+        'rotate(' + this.transform.r + 'deg) ' +
+        'scale(' + this.transform.s + ')');
   }
 });

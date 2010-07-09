@@ -91,6 +91,8 @@
         presenter.addBrush('fill', icon, new cb.FillBrush());
         icon = new cb.ui.Icon('/img/brush-move.png', 50, 50);
         presenter.addBrush('move', icon, new cb.MoveTool());
+        icon = new cb.ui.Icon('/img/brush-move.png', 50, 50);
+        presenter.addBrush('view', icon, new cb.ViewTool());
 
         var progressBar = new cb.ui.ProgressPopup('', {closeable:false});
         var showNotifications = false;

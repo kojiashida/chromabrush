@@ -153,7 +153,6 @@ cb.LineBrush = cb.Brush.extend({
           y, 
           this.presenter.currentBrushSize(), 
           this.presenter.currentColor());
-      console.log(evt, evt.shiftKey);
       if (!evt.shiftKey) {
         // End of line.
         this.startX = this.startY = null;
@@ -255,5 +254,78 @@ cb.MoveTool = cb.Brush.extend({
     this.presenter.getToolLayer().clear();
     this.presenter.getToolLayer().paintLayerBox(
         this.presenter.getCurrentLayer(), 5.0, '#668');
+  }
+});
+
+cb.ViewTool = cb.Brush.extend({
+  init: function() {
+    this.startX = this.startY = this.startR = this.startS = this.startC =
+        this.startXfm = this.mode = null;
+  },
+  onMouseDown: function(x, y, evt) {
+    this.startXfm = this.presenter.getCanvasTransform();
+    this.mode = evt.shiftKey ? 'r' : (evt.ctrlKey ? 's' : 't');
+
+    if (this.mode == 't') {
+      this.startX = evt.pageX;
+      this.startY = evt.pageY;
+    } else {
+      var toollayer = this.presenter.getToolLayer();
+      var size = this.presenter.getCanvasSize();
+      var cx = size.w / 2.0;
+      var cy = size.h / 2.0;
+      var r = Math.min(size.w, size.h) / 5.0;
+      var c = '#200050';
+      toollayer.paintCircle(cx, cy, r, 1, c);
+      this.startC = this.presenter.getCanvasCenterPos();
+
+      if (this.mode == 'r') {
+        this.startR = this.angle(evt);
+        toollayer.paintLine(cx - r, cy, cx + r, cy, 1, c);
+        toollayer.paintLine(cx, cy - r, cx, cy + r, 1, c);
+      } else {
+        this.startS = this.scale(evt);
+        toollayer.paintCircle(cx, cy, r / 2.0, 1, c);
+      }
+    }
+  },
+  onMouseUp: function(x, y, evt) {
+    if (this.startXfm) { this.transform(evt); }
+    this.startX = this.startY = this.startR = this.startS = this.startC =
+        this.startXfm = this.mode = null;
+    this.presenter.getToolLayer().clear();
+  },
+  onMouseMove: function(x, y, evt) {
+    if (this.startXfm) { this.transform(evt); }
+  },
+  transform: function(evt) {
+    var xfm = {
+        x: this.startXfm.x,
+        y: this.startXfm.y,
+        r: this.startXfm.r,
+        s: this.startXfm.s };
+    if (this.mode == 't') {
+      // Translation.
+      xfm.x += evt.pageX - this.startX;
+      xfm.y += evt.pageY - this.startY;
+    } else if (this.mode == 'r') {
+      // Rotation.
+      xfm.r += this.angle(evt) - this.startR;
+    } else if (this.mode == 's') {
+      // Scaling.
+      xfm.s = Math.max(xfm.s * this.scale(evt) / this.startS, 0.2);
+    }
+    this.presenter.setCanvasTransform(xfm);
+  },
+  angle: function(evt) {
+    var dx = evt.pageX - this.startC.x;
+    var dy = evt.pageY - this.startC.y;
+    // Return the value in degrees.
+    return -Math.atan2(dx, dy) / Math.PI * 180;
+  },
+  scale: function(evt) {
+    var dx = evt.pageX - this.startC.x;
+    var dy = evt.pageY - this.startC.y;
+    return Math.sqrt(dx * dx + dy * dy);
   }
 });
